@@ -1,0 +1,18 @@
+--- tools/systemd/squid.service.orig	2024-04-25 19:52:21.831732929 +1000
++++ tools/systemd/squid.service	2024-04-28 14:37:43.383914180 +1000
+@@ -13,9 +13,12 @@
+ [Service]
+ Type=notify
+ PIDFile=/var/run/squid.pid
+-ExecStartPre=/usr/sbin/squid --foreground -z
+-ExecStart=/usr/sbin/squid --foreground -sYC
+-ExecReload=/bin/kill -HUP $MAINPID
++LimitNOFILE=16384
++EnvironmentFile=/etc/sysconfig/squid
++ExecStartPre=/usr/sbin/squid --foreground -z $SQUID_OPTS -f $SQUID_CONF
++ExecStart=/usr/sbin/squid --foreground -sYC $SQUID_OPTS -f $SQUID_CONF
++ExecReload=/usr/sbin/squid -k check -f $SQUID_CONF
++ExecReload=/usr/sbin/squid -k reconfigure -f $SQUID_CONF
+ KillMode=mixed
+ NotifyAccess=all
+ 
